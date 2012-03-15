@@ -1,0 +1,117 @@
+<html> 
+    <style type="text/css">
+    *   {
+        vertical-align:top;
+    }
+    body {
+        padding:20px;
+        font-family:sans-serif;
+        overflow-y:scroll;
+    }
+    #frames{
+        overflow-x: scroll;
+        width: 100%;
+        margin-bottom: 10px;
+        padding-bottom: 20px;
+    }
+    .frame{
+        margin-right:20px;
+        float:left;
+    }
+    .frame:last-child{
+        margin-right:0;
+    }
+    iframe {
+        border:solid 1px #000;
+    }
+    </style>
+
+<body> 
+    
+    <input type="url" id="url" value="">
+
+    <select id="sizes">
+     <option value="240x320">240 * 320 (small phone)</option>
+     <option value="320x426">320 x 426 (Android small)</option>
+     <option value="320x470">320 x 470 (Android normal)</option>
+     <option value="480x640">480 x 640 (Android large)</option>
+     <option value="720x960">720 x 960 (Android xlarge)</option>
+     <option value="320x480">320 x 480 (iPhone)</option>
+     <option value="768x1024">768x1024 (iPad - Portrait)</option>
+     <option value="1024x768">1024x768 (iPad - Landscape)</option>
+    </select>
+
+    <button id="add">Add iFrame</button>   &nbsp;  &nbsp;
+    <button id="clear">Clear iFrames</button> &nbsp;  &nbsp;
+    <button id="reload">Reload All Frames</button>
+    <hr>
+
+    <div id="frames">
+    </div>
+
+    
+
+    <script type="text/javascript">
+    var sizesDropdown = document.getElementById('sizes');
+    var urlInput      = document.getElementById('url');
+    var addButton     = document.getElementById('add');
+    var clearButton   = document.getElementById('clear');
+    var reloadButton  = document.getElementById('reload');
+    var iframesArea   = document.getElementById('frames');
+    var LS_URL        = 'iframeUrl';
+    var LS_IFRAMES    = 'iframesHTML';
+
+    addButton.addEventListener('click', function() {
+        var size = sizesDropdown.options[sizesDropdown.selectedIndex].value;
+        var width = size.split('x')[0];
+        var height = size.split('x')[1];
+        var url = document.getElementById('url').value;
+
+        var div = document.createElement('div');
+        div.className = 'frame';
+        div.innerHTML = '<h3>' + sizesDropdown.options[sizesDropdown.selectedIndex].text + '</h3>';
+
+        var iframe = document.createElement('iframe');
+        iframe.setAttribute('src', url);
+        iframe.setAttribute('width', width);
+        iframe.setAttribute('height', height);
+        iframe.setAttribute('sandbox', 'allow-same-origin allow-forms allow-scripts');
+        iframe.setAttribute('seamless', 'seamless');
+        div.appendChild(iframe);
+
+        iframesArea.appendChild(div);
+        window.localStorage.setItem(LS_IFRAMES, iframesArea.innerHTML);
+        window.localStorage.setItem(LS_URL, url);
+    });
+
+    clearButton.addEventListener('click', function() {
+        window.localStorage.removeItem(LS_IFRAMES);
+        iframesArea.innerHTML = '';
+    });
+
+    reloadButton.addEventListener('click', function() {
+        var iframes = document.getElementsByTagName('iframe');
+        for (var i = 0; i < iframes.length; i++) {
+            var newUrl = iframes[i].src;
+            if (newUrl.indexOf('?') > -1) {
+                newUrl += '&';
+            } else {
+                newUrl += '?';
+            }
+            newUrl += 'rand=' + (new Date()).getTime();
+            console.log(newUrl);
+            iframes[i].src = newUrl;
+        }
+    });
+
+    var iframesHTML = window.localStorage.getItem(LS_IFRAMES);
+    if (iframesHTML) {
+        iframesArea.innerHTML = iframesHTML;
+    }
+    var iframeUrl = window.localStorage.getItem(LS_URL);
+    if (iframeUrl) {
+        urlInput.value = iframeUrl;
+    }
+    </script>
+</body>
+</html>
