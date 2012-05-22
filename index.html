@@ -1,4 +1,7 @@
-<html> 
+<!DOCTYPE html>
+<html>
+   <meta charset="utf-8">
+   <link href="http://twitter.github.com/bootstrap/assets/css/bootstrap.css" rel="stylesheet">
     <style type="text/css">
     *   {
         vertical-align:top;
@@ -18,6 +21,9 @@
         margin-right:20px;
         float:left;
     }
+    .frame input {
+        width: 100%;
+    }
     .frame:last-child{
         margin-right:0;
     }
@@ -25,10 +31,12 @@
         border:solid 1px #000;
     }
     </style>
+    <meta charset="utf-8">
+    <title>Resolutionizer</title>
+<body>
 
-<body> 
-    
-    <input type="url" id="url" value="">
+    <form class="form-inline">
+    <input type="url" id="url" value="http://twitter.github.com/bootstrap/" style="width:400px;">
 
     <select id="sizes">
      <option value="240x320">240 * 320 (small phone)</option>
@@ -36,14 +44,17 @@
      <option value="320x470">320 x 470 (Android normal)</option>
      <option value="480x640">480 x 640 (Android large)</option>
      <option value="720x960">720 x 960 (Android xlarge)</option>
+     <option value="720x960">600 x 1024 (Android tablet)</option>
      <option value="320x480">320 x 480 (iPhone)</option>
      <option value="768x1024">768x1024 (iPad - Portrait)</option>
      <option value="1024x768">1024x768 (iPad - Landscape)</option>
     </select>
 
-    <button id="add">Add iFrame</button>   &nbsp;  &nbsp;
-    <button id="clear">Clear iFrames</button> &nbsp;  &nbsp;
-    <button id="reload">Reload All Frames</button>
+    <button class="btn" id="add">Add iFrame</button>   &nbsp; &middot; &nbsp;
+    <button class="btn" id="clear">Clear iFrames</button> &nbsp; &middot; &nbsp;
+    <button class="btn" id="reload">Reload All Frames</button>
+    </form>
+
     <hr>
 
     <div id="frames">
@@ -69,6 +80,7 @@
 
         var div = document.createElement('div');
         div.className = 'frame';
+        div.style.width = (parseInt(width, 10) +10) + 'px';
         div.innerHTML = '<h3>' + sizesDropdown.options[sizesDropdown.selectedIndex].text + '</h3>';
 
         var iframe = document.createElement('iframe');
@@ -99,7 +111,6 @@
                 newUrl += '?';
             }
             newUrl += 'rand=' + (new Date()).getTime();
-            console.log(newUrl);
             iframes[i].src = newUrl;
         }
     });
