@@ -1,4 +1,8 @@
-<html> 
+
+<!DOCTYPE html>
+<html>
+   <meta charset="utf-8">
+   <link href="http://twitter.github.com/bootstrap/assets/css/bootstrap.css" rel="stylesheet">
     <style type="text/css">
     *   {
         vertical-align:top;
@@ -18,48 +22,200 @@
         margin-right:20px;
         float:left;
     }
+    .frame input {
+        width: 100%;
+    }
     .frame:last-child{
         margin-right:0;
     }
     iframe {
         border:solid 1px #000;
     }
-    </style>
-
-<body> 
+    #add-size-popup{
+    	display: none;
+    	top:300px;
+    }
     
-    <input type="url" id="url" value="">
-
+    </style>
+    <meta charset="utf-8">
+    <title>Resolutionizer</title>
+<body>
+	<div id="add-size-popup" class="modal">
+		
+		<div class="modal-header">
+   
+   			 <h3>Add new size</h3>
+  		</div>
+		<div class="modal-body">
+   		<label>Size (WIDTHxHEIGHT):</label><input type="text" id="new-size"/><br/>
+		<label>Description: </label><input type="text" id="new-label"/><br/>
+	 		 </div>
+ 		<div class="modal-footer">
+    		<a id="close-button" href="#" class="btn">Close</a>
+    		<button class="btn-primary" id="save-size-button" />Save Size</button>
+ 		 </div> 
+		
+	</div>
+    <form class="form-inline">
+    <input type="url" id="url" value="http://twitter.github.com/bootstrap/" style="width:400px;">
+	&nbsp; &middot; &nbsp;
+	<button class="btn" id="add-size-button">Add Size</button>
     <select id="sizes">
-     <option value="240x320">240 * 320 (small phone)</option>
-     <option value="320x426">320 x 426 (Android small)</option>
-     <option value="320x470">320 x 470 (Android normal)</option>
-     <option value="480x640">480 x 640 (Android large)</option>
-     <option value="720x960">720 x 960 (Android xlarge)</option>
-     <option value="320x480">320 x 480 (iPhone)</option>
-     <option value="768x1024">768x1024 (iPad - Portrait)</option>
-     <option value="1024x768">1024x768 (iPad - Landscape)</option>
+     
     </select>
 
-    <button id="add">Add iFrame</button>   &nbsp;  &nbsp;
-    <button id="clear">Clear iFrames</button> &nbsp;  &nbsp;
-    <button id="reload">Reload All Frames</button>
+    <button class="btn" id="add">Add iFrame</button>   &nbsp; &middot; &nbsp;
+    <button class="btn" id="clear">Clear iFrames</button> &nbsp; &middot; &nbsp;
+    <button class="btn" id="reload">Reload All Frames</button>
+    </form>
+
     <hr>
 
     <div id="frames">
     </div>
 
-    
-
+   
     <script type="text/javascript">
-    var sizesDropdown = document.getElementById('sizes');
-    var urlInput      = document.getElementById('url');
-    var addButton     = document.getElementById('add');
-    var clearButton   = document.getElementById('clear');
-    var reloadButton  = document.getElementById('reload');
-    var iframesArea   = document.getElementById('frames');
-    var LS_URL        = 'iframeUrl';
-    var LS_IFRAMES    = 'iframesHTML';
+    
+    var $ = function(id){
+    	return document.getElementById(id)
+    }
+    
+    var addSizeButton = $('add-size-button'),
+   		addSizePopup  = $('add-size-popup'),
+    	saveSizeButton = $('save-size-button'),
+    	closeButton = $('close-button'),
+    	newSize 	 = $('new-size'),
+    	newLabel 	= $('new-label'),
+    	sizesDropdown = $('sizes');
+    	urlInput      = $('url'),
+    	addButton     = $('add'),
+    	clearButton   = $('clear'),
+    	reloadButton  = $('reload'),
+    	iframesArea   = $('frames'),
+    	LS_URL        = 'iframeUrl',
+    	LS_IFRAMES    = 'iframesHTML',
+    	LS_SIZES	  = 'screenSizes';
+    
+    
+    
+	/*
+	
+	Default sizes
+	
+	*/
+    	
+    	var defaultSizes = [{width:240,height:320,label:"small phone"},
+    						{width:320,height:426,label:"Android small"},
+    						{width:320,height:470,label:"Android normal"},
+    						{width:480,height:640,label:"Android large"},
+    						{width:720,height:960,label:"Android xlarge"},
+    						{width:600,height:1024,label:"Android tablet"},
+    						{width:320,height:480,label:"iPhone"},
+    						{width:768,height:1024,label:"iPad Portrait"},
+    						{width:1024,height:768,label:"iPad Landscape"}
+    						]
+    /*
+    
+   	filling the sizes dropdown box
+    	
+    */  	
+    var initSizes = function(){	
+    		clearSizes();
+    		defaultSizes.forEach(function(size){
+    			appendSize(size)
+    		})
+    		
+    		var userSizes =	JSON.parse(window.localStorage.getItem(LS_SIZES))	
+    		if(userSizes){			
+    			userSizes.forEach(function(size){
+    				appendSize(size)	
+    			})
+    		}
+    	
+    }  
+    
+    /*
+    
+    clear all sizes from the dropdown
+    
+    */
+    var clearSizes = function(){
+    	
+    	while (sizesDropdown.hasChildNodes()) {
+        sizesDropdown.removeChild(sizesDropdown.firstChild);
+    	}
+    }
+    
+    /*
+    
+    add a size to the dropdown
+    
+    */
+    
+    var appendSize  = function(size){
+    	var option = document.createElement("option")
+    		option.value=size.width+"x"+size.height
+    		option.text=size.width+"x"+size.height+" ("+size.label+")"
+    	sizesDropdown.appendChild(option)
+    }  
+    
+    /*
+    
+    click listeners for the buttons
+    
+    */
+    
+    addSizeButton.addEventListener('click',function(event){
+    	
+    	event.preventDefault()
+    	addSizePopup.style.display="block";
+    	
+    	return false;
+    })
+    saveSizeButton.addEventListener('click',function(event){
+    		event.preventDefault()
+    		saveSizes()
+    		return false;
+    })
+    
+    closeButton.addEventListener('click',function(event){
+    	addSizePopup.style.display="none";	
+    })
+    
+    /*
+    
+    appends the new sizes to the userSizes object and saves it to local storage
+    
+    */
+    
+    var saveSizes = function(){
+    	
+    	var size={width:0,height:0,label:"new size"}
+    		size.width = newSize.value.split('x')[0];
+        	size.height = newSize.value.split('x')[1];
+        	size.label = newLabel.value	
+    	
+    	var userSizes=	JSON.parse(window.localStorage.getItem(LS_SIZES))
+    		
+    		if(!userSizes){
+    			userSizes = []
+    		}
+    		
+    		userSizes.push(size)
+    				
+    		window.localStorage.setItem(LS_SIZES,JSON.stringify(userSizes))
+    		
+    		newLabel.value =""
+    		newSize.value =""	
+    		
+    		initSizes()
+    		
+    		
+    	addSizePopup.style.display="none";
+    	
+    }
+    
 
     addButton.addEventListener('click', function() {
         var size = sizesDropdown.options[sizesDropdown.selectedIndex].value;
@@ -69,6 +225,7 @@
 
         var div = document.createElement('div');
         div.className = 'frame';
+        div.style.width = (parseInt(width, 10) +10) + 'px';
         div.innerHTML = '<h3>' + sizesDropdown.options[sizesDropdown.selectedIndex].text + '</h3>';
 
         var iframe = document.createElement('iframe');
@@ -99,10 +256,11 @@
                 newUrl += '?';
             }
             newUrl += 'rand=' + (new Date()).getTime();
-            console.log(newUrl);
             iframes[i].src = newUrl;
         }
     });
+	
+	initSizes()
 
     var iframesHTML = window.localStorage.getItem(LS_IFRAMES);
     if (iframesHTML) {
@@ -112,6 +270,8 @@
     if (iframeUrl) {
         urlInput.value = iframeUrl;
     }
+    
+    
     </script>
 </body>
 </html>
